@@ -21,7 +21,7 @@ local wdir = { 8, 17, 6, 15 } -- wall direction
 -- For compatibility with older stuff
 minetest.register_alias("memorandum:letter_empty_2"  ,"memorandum:letter_empty"  )
 minetest.register_alias("memorandum:letter_written_2","memorandum:letter_written")
-			
+
 minetest.register_craftitem(":default:paper", {
 	description = S("Paper"),
 	inventory_image = "default_paper.png",
@@ -60,7 +60,7 @@ minetest.register_node("memorandum:letter_empty", {
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
 		meta:set_string(
-					"formspec", 
+					"formspec",
 					"size[10,7]"..
 					"field[1,1;8.5,1;text;"..S("Write a Letter")..";${text}]"..
 					"field[1,3;4.25,1;signed;"..S("Sign Letter (optional)")..";${signed}]"..
@@ -88,6 +88,11 @@ minetest.register_node("memorandum:letter_empty", {
 			meta:set_string("signed", fields.signed)
 			meta:set_string("infotext", info..fields.text..sign..fields.signed)
 		end
+		minetest.log('action', ('[memorandum] %s wrote memo saying %q signed %q'):format(
+				sender:get_player_name(),
+				fields.text,
+				fields.signed
+		))
 	end,
 	on_dig = function(pos, node, digger)
 		if digger:is_player() and digger:get_inventory() then
@@ -132,6 +137,7 @@ minetest.register_craftitem("memorandum:letter", {
 		local meta = minetest.get_meta(above)
 		local text = itemstack:get_metadata()
 		local scnt = string.sub (text, -2, -1)
+		local mssg, sgnd
 		if scnt == "00" then
 			mssg = string.sub (text, 1, -3)
 			sgnd = ""
@@ -178,8 +184,8 @@ minetest.register_node("memorandum:letter_written", {
 		local item = sender:get_wielded_item()
 		if item:get_name() == "memorandum:eraser" then
 			local meta = minetest.get_meta(pos)
-			fields.text = minetest.format_escape(fields.text) or ""
-			fields.signed = minetest.format_escape(fields.signed) or ""
+			fields.text = minetest.formspec_escape(fields.text) or ""
+			fields.signed = minetest.formspec_escape(fields.signed) or ""
 			--[[print((sender:get_player_name() or "").." wrote \""..fields.text..
 				"\" to paper at "..minetest.pos_to_string(pos))]]
 			local fdir = minetest.get_node(pos).param2
@@ -193,6 +199,11 @@ minetest.register_node("memorandum:letter_written", {
 				meta:set_string("signed", fields.signed)
 				meta:set_string("infotext", info..fields.text..sign..fields.signed)
 			end
+			minetest.log('action', ('[memorandum] %s wrote memo saying %q signed %q'):format(
+					sender:get_player_name(),
+					fields.text,
+					fields.signed
+			))
 		end
 	end,
 	on_dig = function(pos, node, digger)
@@ -240,14 +251,14 @@ minetest.register_tool("memorandum:eraser", {
 			if string.find(node.name, "memorandum:letter_written") then
 				if signer == player or signer == "" then
 					meta:set_string(
-						"formspec", 
+						"formspec",
 						"size[10,7]"..
 						"field[1,1;8.5,1;text;"..S("Edit Text")..";${text}]"..
 						"field[1,3;4.25,1;signed;"..S("Edit Signature")..";${signed}]"..
 						"button_exit[0.75,5;4.25,1;text,signed;"..S("Done").."]"
 					)
 					if not minetest.setting_getbool("creative_mode") then
-						return eraser_wear(itemstack, user, pointed_thing, 30)	
+						return eraser_wear(itemstack, user, pointed_thing, 30)
 					else
 						return {name="memorandum:eraser", count=1, wear=0, metadata=""}
 					end
@@ -261,7 +272,7 @@ minetest.register_node("memorandum:message", {
 	description = S("Message in a Bottle"),
 	drawtype = "plantlike",
 	tiles = {"vessels_glass_bottle.png^memorandum_message.png"},
-	inventory_image = "vessels_glass_bottle_inv.png^memorandum_message.png",
+	inventory_image = "vessels_glass_bottle.png^memorandum_message.png",
 	wield_image = "vessels_glass_bottle.png^memorandum_message.png",
 	paramtype = "light",
 	selection_box = {
@@ -277,6 +288,7 @@ minetest.register_node("memorandum:message", {
 			local meta = minetest.get_meta(pt.above)
 			local text = itemstack:get_metadata()
 			local scnt = string.sub (text, -2, -1)
+			local mssg, sgnd
 			if scnt == "00" then
 				mssg = string.sub (text, 1, -3)
 				sgnd = ""
@@ -307,6 +319,7 @@ minetest.register_node("memorandum:message", {
 		local meta = minetest.get_meta(pt.above)
 		local text = itemstack:get_metadata()
 		local scnt = string.sub (text, -2, -1)
+		local mssg, sgnd
 		if scnt == "00" then
 			mssg = string.sub (text, 1, -3)
 			sgnd = ""
