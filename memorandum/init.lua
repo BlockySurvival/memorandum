@@ -95,8 +95,10 @@ minetest.register_node("memorandum:letter_empty", {
 		))
 	end,
 	on_dig = function(pos, node, digger)
-		if digger:is_player() and digger:get_inventory() then
+		if digger and digger:is_player() and digger:get_inventory() then
 			digger:get_inventory():add_item("main", {name="default:paper", count=1, wear=0, metadata=""})
+		else
+			minetest.add_item(pos, {name="default:paper", count=1, wear=0, metadata=""})
 		end
 		minetest.remove_node(pos)
 	end,
@@ -207,25 +209,27 @@ minetest.register_node("memorandum:letter_written", {
 		end
 	end,
 	on_dig = function(pos, node, digger)
-		if digger:is_player() and digger:get_inventory() then
-			local meta = minetest.get_meta(pos)
-			local text = meta:get_string("text")
-			local signed = meta:get_string("signed")
-			local signcount = string.len(signed)
+		local meta = minetest.get_meta(pos)
+		local text = meta:get_string("text")
+		local signed = meta:get_string("signed")
+		local signcount = string.len(signed)
+		if string.len(signed) < 10 then
+			signcount = "0"..string.len(signed)
+		end
+		if signed == '" Unsigned' then
+			signcount = "00"
+		end
+		if digger and digger:is_player() and digger:get_inventory() then
 			local item = digger:get_wielded_item()
 			local inv = digger:get_inventory()
-			if string.len(signed) < 10 then
-				signcount = "0"..string.len(signed)
-			end
-			if signed == '" Unsigned' then
-				signcount = "00"
-			end
 			if item:get_name() == "vessels:glass_bottle" then
 				inv:remove_item("main", "vessels:glass_bottle")
 				inv:add_item("main", {name="memorandum:message", count=1, wear=0, metadata=text..signed..signcount})
 			else
 				inv:add_item("main", {name="memorandum:letter", count=1, wear=0, metadata=text..signed..signcount})
 			end
+		else
+			minetest.add_item(pos, {name="memorandum:letter", count=1, wear=0, metadata=text..signed..signcount})
 		end
 		minetest.remove_node(pos)
 	end,
@@ -339,19 +343,20 @@ minetest.register_node("memorandum:message", {
 		end
 	end,
 	on_dig = function(pos, node, digger)
-		if digger:is_player() and digger:get_inventory() then
-			local meta = minetest.get_meta(pos)
-			local text = meta:get_string("text")
-			local signed = meta:get_string("signed")
-			local signcount = string.len(signed)
-			local item = digger:get_wielded_item()
-			if string.len(signed) < 10 then
-				signcount = "0"..string.len(signed)
-			end
-			if signed == '" Unsigned' then
-				signcount = "00"
-			end
+		local meta = minetest.get_meta(pos)
+		local text = meta:get_string("text")
+		local signed = meta:get_string("signed")
+		local signcount = string.len(signed)
+		if string.len(signed) < 10 then
+			signcount = "0"..string.len(signed)
+		end
+		if signed == '" Unsigned' then
+			signcount = "00"
+		end
+		if digger and digger:is_player() and digger:get_inventory() then
 			digger:get_inventory():add_item("main", {name="memorandum:message", count=1, wear=0, metadata=text..signed..signcount})
+		else
+			minetest.add_item(pos, {name="memorandum:message", count=1, wear=0, metadata=text..signed..signcount})
 		end
 		minetest.remove_node(pos)
 	end,
