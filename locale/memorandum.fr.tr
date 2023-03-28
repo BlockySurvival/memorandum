@@ -1,8 +1,9 @@
 # Template
+# textdomain: memorandum
 
 On this piece of paper is written: " = Sur ce papier est écrit "
 " Signed by: = " Signé de:
-%s %s" Unsigned = %s %s" non signé
+@1 @2" Unsigned = @1 @2" non signé
 Paper = Papier
 Letter = Lettre
 Eraser = Gomme

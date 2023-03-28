@@ -1,8 +1,9 @@
 # Translation by Xanthin
+# textdomain: memorandum
 
 On this piece of paper is written: " = Auf diesem Stueck Papier steht: "
 " Signed by: = " Unterschrieben von:
-%s %s" Unsigned = %s %s" ohne Unterschrift
+@1 @2" Unsigned = @1 @2" ohne Unterschrift
 Paper = Papier
 Letter = Brief
 Eraser = Radiergummi
