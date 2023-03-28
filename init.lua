@@ -67,7 +67,7 @@ minetest.register_node("memorandum:letter_empty", {
 		end
 		local meta = minetest.get_meta(pos)
 		fields.text = fields.text:sub(1, 10000)
-		fields.signed = fields.text:signed(1, 80)
+		fields.signed = fields.signed:sub(1, 80)
 		fields.text = minetest.formspec_escape(fields.text) or ""
 		fields.signed = minetest.formspec_escape(fields.signed) or ""
 		--[[print((sender:get_player_name() or "").." wrote \""..fields.text..
@@ -182,7 +182,7 @@ minetest.register_node("memorandum:letter_written", {
 		if item:get_name() == "memorandum:eraser" then
 			local meta = minetest.get_meta(pos)
 			fields.text = fields.text:sub(1, 10000)
-			fields.signed = fields.text:signed(1, 80)
+			fields.signed = fields.signed:sub(1, 80)
 			fields.text = minetest.formspec_escape(fields.text) or ""
 			fields.signed = minetest.formspec_escape(fields.signed) or ""
 			--[[print((sender:get_player_name() or "").." wrote \""..fields.text..
