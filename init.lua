@@ -4,12 +4,7 @@ local version 	= "0.1.2"
 local mname		= "memorandum"
 -----------------------------------------------------------------------------------------------
 -- Boilerplate to support localized strings if intllib mod is installed.
-local S
-if rawget(_G, "intllib") then
-	S = intllib.Getter()
-else
-	S = function(s) return s end
-end
+local S = minetest.get_translator("memorandum")
 
 --				{ left	, bottom , front  ,  right ,  top   ,  back  }
 local sheet =	{ -1/2  , -1/2   , -1/2   , 1/2    , -7/16  ,  1/2  }
@@ -22,9 +17,7 @@ local wdir = { 8, 17, 6, 15 } -- wall direction
 minetest.register_alias("memorandum:letter_empty_2"  ,"memorandum:letter_empty"  )
 minetest.register_alias("memorandum:letter_written_2","memorandum:letter_written")
 
-minetest.register_craftitem(":default:paper", {
-	description = S("Paper"),
-	inventory_image = "default_paper.png",
+minetest.override_item("default:paper", {
 	on_place = function(itemstack, placer, pointed_thing)
 		local pt = pointed_thing
 		local above = pt.above
@@ -36,7 +29,7 @@ minetest.register_craftitem(":default:paper", {
 			else
 				minetest.add_node(above, {name="memorandum:letter_empty", param2=fdir})
 			end
-			if not minetest.setting_getbool("creative_mode") then
+			if not minetest.settings:get_bool("creative_mode", false) then
 				itemstack:take_item()
 			end
 			return itemstack
@@ -73,6 +66,8 @@ minetest.register_node("memorandum:letter_empty", {
 			return
 		end
 		local meta = minetest.get_meta(pos)
+		fields.text = fields.text:sub(1, 10000)
+		fields.signed = fields.signed:sub(1, 80)
 		fields.text = minetest.formspec_escape(fields.text) or ""
 		fields.signed = minetest.formspec_escape(fields.signed) or ""
 		--[[print((sender:get_player_name() or "").." wrote \""..fields.text..
@@ -83,7 +78,7 @@ minetest.register_node("memorandum:letter_empty", {
 		end
 		meta:set_string("text", fields.text)
 		meta:set_string("signed", "")
-		meta:set_string("infotext", S('%s %s" Unsigned'):format(info,fields.text))
+		meta:set_string("infotext", S('@1 @2" Unsigned', info,fields.text))
 		if fields.signed ~= "" then
 			meta:set_string("signed", fields.signed)
 			meta:set_string("infotext", info..fields.text..sign..fields.signed)
@@ -157,7 +152,7 @@ minetest.register_craftitem("memorandum:letter", {
 				minetest.add_node(above, {name="memorandum:letter_written", param2=fdir})
 			end
 			if scnt == "00" or tonumber(scnt) == nil then
-				meta:set_string("infotext", S('%s %s" Unsigned'):format(info,mssg))
+				meta:set_string("infotext", S('@1 @2" Unsigned', info,mssg))
 			else
 				meta:set_string("infotext", info..mssg..sign..sgnd)
 			end
@@ -186,6 +181,8 @@ minetest.register_node("memorandum:letter_written", {
 		local item = sender:get_wielded_item()
 		if item:get_name() == "memorandum:eraser" then
 			local meta = minetest.get_meta(pos)
+			fields.text = (fields.text or ""):sub(1, 10000)
+			fields.signed = (fields.signed or ""):sub(1, 80)
 			fields.text = minetest.formspec_escape(fields.text) or ""
 			fields.signed = minetest.formspec_escape(fields.signed) or ""
 			--[[print((sender:get_player_name() or "").." wrote \""..fields.text..
@@ -196,7 +193,7 @@ minetest.register_node("memorandum:letter_written", {
 			end
 			meta:set_string("text", fields.text)
 			meta:set_string("signed", "")
-			meta:set_string("infotext", (S('%s %s" Unsigned') or '%s %s" Unsigned'):format(info,fields.text))
+			meta:set_string("infotext", S('@1 @2" Unsigned', info,fields.text))
 			if fields.signed and fields.signed ~= "" then
 				meta:set_string("signed", fields.signed)
 				meta:set_string("infotext", info..fields.text..sign..fields.signed)
@@ -306,7 +303,7 @@ minetest.register_node("memorandum:message", {
 			if  minetest.get_node(pt.above).name == "air" then
 				minetest.add_node(pt.above, {name="memorandum:letter_written", param2=math.random(0,3)})
 				if scnt == "00" or tonumber(scnt) == nil then
-					meta:set_string("infotext", S('%s %s" Unsigned'):format(info,mssg))
+					meta:set_string("infotext", S('@1 @2" Unsigned', info,mssg))
 				else
 					meta:set_string("infotext", info..mssg..sign..sgnd)
 				end
