@@ -181,8 +181,8 @@ minetest.register_node("memorandum:letter_written", {
 		local item = sender:get_wielded_item()
 		if item:get_name() == "memorandum:eraser" then
 			local meta = minetest.get_meta(pos)
-			fields.text = fields.text:sub(1, 10000)
-			fields.signed = fields.signed:sub(1, 80)
+			fields.text = (fields.text or ""):sub(1, 10000)
+			fields.signed = (fields.signed or ""):sub(1, 80)
 			fields.text = minetest.formspec_escape(fields.text) or ""
 			fields.signed = minetest.formspec_escape(fields.signed) or ""
 			--[[print((sender:get_player_name() or "").." wrote \""..fields.text..
